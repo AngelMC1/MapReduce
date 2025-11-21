@@ -1,0 +1,31 @@
+id,producto,categoria,precio,cantidad,fecha
+1,Laptop Dell XPS,Electronica,1299.99,15,2025-01-15
+2,Mouse Logitech,Electronica,29.99,120,2025-01-16
+3,Teclado Mecanico,Electronica,89.99,45,2025-01-17
+4,Silla Oficina,Muebles,249.99,30,2025-01-18
+5,Escritorio Madera,Muebles,399.99,12,2025-01-19
+6,Monitor LG 27",Electronica,349.99,25,2025-01-20
+7,Lampara LED,Iluminacion,45.50,80,2025-01-21
+8,Estanteria Metalica,Muebles,179.99,18,2025-01-22
+9,Webcam HD,Electronica,79.99,60,2025-01-23
+10,Microfono USB,Electronica,119.99,35,2025-01-24
+11,Auriculares Bluetooth,Electronica,159.99,50,2025-01-25
+12,Mesa Plegable,Muebles,129.99,22,2025-01-26
+13,Foco Inteligente,Iluminacion,32.99,95,2025-01-27
+14,Cable HDMI,Electronica,15.99,200,2025-01-28
+15,Hub USB-C,Electronica,49.99,70,2025-01-29
+16,Cajonera Rodante,Muebles,89.99,28,2025-01-30
+17,Lampara Escritorio,Iluminacion,38.50,65,2025-02-01
+18,Router WiFi,Electronica,129.99,40,2025-02-02
+19,SSD 1TB,Electronica,109.99,55,2025-02-03
+20,RAM 16GB,Electronica,79.99,75,2025-02-04
+21,Ventilador USB,Electronica,24.99,110,2025-02-05
+22,Alfombra Antideslizante,Muebles,34.99,42,2025-02-06
+23,Organizador Cables,Electronica,12.99,150,2025-02-07
+24,Soporte Laptop,Electronica,39.99,58,2025-02-08
+25,Bombilla LED Pack,Iluminacion,28.99,88,2025-02-09
+26,Sillon Ejecutivo,Muebles,599.99,8,2025-02-10
+27,Panel LED Techo,Iluminacion,79.99,32,2025-02-11
+28,Adaptador Corriente,Electronica,19.99,125,2025-02-12
+29,Pizarra Blanca,Muebles,68.99,20,2025-02-13
+30,Tira LED RGB,Iluminacion,42.50,72,2025-02-14

@@ -1,0 +1,21 @@
+# ============================================
+# Dependencias del Proyecto MapReduce
+# ============================================
+
+# Framework MapReduce para Python
+mrjob==0.7.4
+
+# Framework web para la API REST
+fastapi==0.109.0
+
+# Servidor ASGI para FastAPI
+uvicorn[standard]==0.27.0
+
+# Para manejo de datos (usado en scripts auxiliares)
+pandas==2.1.4
+
+# Para validación de datos en FastAPI
+pydantic==2.5.3
+
+# Utilidades adicionales
+python-multipart==0.0.6
