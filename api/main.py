@@ -51,8 +51,8 @@ def leer_resultados_csv(archivo: str = "resultado.csv") -> List[Dict]:
                 'categoria': row['categoria'],
                 'num_productos': int(row['num_productos']),
                 'precio_promedio': float(row['precio_promedio']),
-                'cantidad_total': int(row['cantidad_total']),
-                'ingreso_total': float(row['ingreso_total'])
+                'rating_promedio': float(row['rating_promedio']),
+                'total_reviews': int(row['total_reviews'])
             })
     
     return resultados
@@ -163,24 +163,31 @@ async def obtener_estadisticas():
         
         # Calcular estadísticas generales
         total_productos = sum(r['num_productos'] for r in resultados)
-        total_cantidad = sum(r['cantidad_total'] for r in resultados)
-        total_ingresos = sum(r['ingreso_total'] for r in resultados)
+        total_reviews = sum(r['total_reviews'] for r in resultados)
         precio_promedio_global = sum(r['precio_promedio'] for r in resultados) / len(resultados)
+        rating_promedio_global = sum(r['rating_promedio'] for r in resultados) / len(resultados)
         
-        # Encontrar categoría con más ingresos
-        categoria_top = max(resultados, key=lambda x: x['ingreso_total'])
+        # Encontrar categoría con mejor rating
+        categoria_top_rating = max(resultados, key=lambda x: x['rating_promedio'])
+        
+        # Encontrar categoría con más reviews
+        categoria_top_reviews = max(resultados, key=lambda x: x['total_reviews'])
         
         estadisticas = {
             "resumen_general": {
                 "total_productos": total_productos,
-                "total_unidades": total_cantidad,
-                "ingresos_totales": round(total_ingresos, 2),
+                "total_reviews": total_reviews,
                 "precio_promedio_global": round(precio_promedio_global, 2),
+                "rating_promedio_global": round(rating_promedio_global, 2),
                 "numero_categorias": len(resultados)
             },
-            "categoria_top": {
-                "nombre": categoria_top['categoria'],
-                "ingresos": round(categoria_top['ingreso_total'], 2)
+            "categoria_mejor_rating": {
+                "nombre": categoria_top_rating['categoria'],
+                "rating": round(categoria_top_rating['rating_promedio'], 2)
+            },
+            "categoria_mas_reviews": {
+                "nombre": categoria_top_reviews['categoria'],
+                "total_reviews": categoria_top_reviews['total_reviews']
             },
             "por_categoria": resultados
         }

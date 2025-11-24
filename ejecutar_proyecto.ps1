@@ -48,13 +48,13 @@ for line in lines:
                 'categoria': categoria,
                 'num_productos': valores[0].strip(),
                 'precio_promedio': valores[1].strip(),
-                'cantidad_total': valores[2].strip(),
-                'ingreso_total': valores[3].strip()
+                'rating_promedio': valores[2].strip(),
+                'total_reviews': valores[3].strip()
             })
 
 # Escribir CSV
 with open('resultado.csv', 'w', newline='', encoding='utf-8') as f:
-    writer = csv.DictWriter(f, fieldnames=['categoria', 'num_productos', 'precio_promedio', 'cantidad_total', 'ingreso_total'])
+    writer = csv.DictWriter(f, fieldnames=['categoria', 'num_productos', 'precio_promedio', 'rating_promedio', 'total_reviews'])
     writer.writeheader()
     writer.writerows(data)
 

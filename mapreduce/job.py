@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 
 """
-MapReduce Job con MRJob para análisis de productos
+MapReduce Job con MRJob para análisis de productos de Fake Store API
 Analiza datos de productos y calcula:
 - Total de productos por categoría
 - Promedio de precio por categoría
-- Total de ingresos por categoría (precio * cantidad)
+- Promedio de rating por categoría
+- Total de reviews por categoría
 """
 
 from mrjob.job import MRJob
@@ -18,16 +19,9 @@ class ProductAnalysisJob(MRJob):
     """
     Job MapReduce para analizar productos por categoría.
     
-    Entrada: CSV con columnas: id, producto, categoria, precio, cantidad, fecha
+    Entrada: CSV con columnas: id, title, price, description, category, image, rating_rate, rating_count
     Salida: Estadísticas agregadas por categoría
     """
-
-    def mapper_init(self):
-        """
-        Inicializa el mapper.
-        Se ejecuta una vez antes de procesar las líneas.
-        """
-        self.is_header = True
 
     def mapper(self, _, line):
         """
@@ -40,39 +34,36 @@ class ProductAnalysisJob(MRJob):
         Yields:
             (categoria, dict): Tupla con categoría y datos del producto
         """
-        # Saltar la primera línea (encabezado)
-        if self.is_header:
-            self.is_header = False
-            return
-        
         try:
-            # Parsear la línea CSV
-            reader = csv.reader([line])
+            # Limpiar la línea
+            line = line.strip()
+            if not line or line.startswith('"id"'):
+                # Saltar línea vacía o encabezado
+                return
+            
+            # Parsear la línea CSV con RFC 4180 compliance
+            reader = csv.reader([line], quotechar='"', doublequote=True)
             row = next(reader)
             
-            # Validar que tenga las columnas esperadas
-            if len(row) < 5:
+            # Validar que tenga las columnas esperadas (8 columnas)
+            if len(row) != 8:
                 return
             
             # Extraer datos
-            producto_id = row[0]
-            producto = row[1]
-            categoria = row[2]
-            precio = float(row[3])
-            cantidad = int(row[4])
-            
-            # Calcular ingreso total (precio * cantidad)
-            ingreso = precio * cantidad
+            precio = float(row[2])
+            categoria = row[4]
+            rating_rate = float(row[6])
+            rating_count = int(row[7])
             
             # Emitir: key=categoría, value=diccionario con datos
             yield categoria, {
                 'precio': precio,
-                'cantidad': cantidad,
-                'ingreso': ingreso,
+                'rating_rate': rating_rate,
+                'rating_count': rating_count,
                 'count': 1
             }
             
-        except (ValueError, IndexError) as e:
+        except (ValueError, IndexError, TypeError):
             # Ignorar líneas con errores de formato
             pass
 
@@ -89,20 +80,20 @@ class ProductAnalysisJob(MRJob):
             (categoria, dict): Tupla con categoría y datos agregados
         """
         total_precio = 0
-        total_cantidad = 0
-        total_ingreso = 0
+        total_rating = 0
+        total_reviews = 0
         count = 0
         
         for valor in valores:
             total_precio += valor['precio']
-            total_cantidad += valor['cantidad']
-            total_ingreso += valor['ingreso']
+            total_rating += valor['rating_rate']
+            total_reviews += valor['rating_count']
             count += valor['count']
         
         yield categoria, {
             'precio': total_precio,
-            'cantidad': total_cantidad,
-            'ingreso': total_ingreso,
+            'rating_rate': total_rating,
+            'rating_count': total_reviews,
             'count': count
         }
 
@@ -118,22 +109,23 @@ class ProductAnalysisJob(MRJob):
             (categoria, str): Tupla con categoría y estadísticas en formato CSV
         """
         total_precio = 0
-        total_cantidad = 0
-        total_ingreso = 0
+        total_rating = 0
+        total_reviews = 0
         count = 0
         
         # Sumar todos los valores
         for valor in valores:
             total_precio += valor['precio']
-            total_cantidad += valor['cantidad']
-            total_ingreso += valor['ingreso']
+            total_rating += valor['rating_rate']
+            total_reviews += valor['rating_count']
             count += valor['count']
         
-        # Calcular promedio de precio
+        # Calcular promedios
         precio_promedio = total_precio / count if count > 0 else 0
+        rating_promedio = total_rating / count if count > 0 else 0
         
         # Formatear resultado como CSV
-        resultado = f"{count},{precio_promedio:.2f},{total_cantidad},{total_ingreso:.2f}"
+        resultado = f"{count},{precio_promedio:.2f},{rating_promedio:.2f},{total_reviews}"
         
         yield categoria, resultado
 
@@ -146,7 +138,6 @@ class ProductAnalysisJob(MRJob):
         """
         return [
             MRStep(
-                mapper_init=self.mapper_init,
                 mapper=self.mapper,
                 combiner=self.combiner,
                 reducer=self.reducer

@@ -1,61 +1,69 @@
 #!/bin/bash
 
-# Script para cargar datos al sistema HDFS
-# Uso: ./upload_to_hdfs.sh
+# Script para subir datos al HDFS de Hadoop
+# Uso: bash upload_to_hdfs.sh
 
-echo "=== Iniciando carga de datos a HDFS ==="
+echo "=========================================="
+echo "  Subiendo datos a HDFS"
+echo "=========================================="
 
-# Verificar que Hadoop esté disponible
-if ! command -v hdfs &> /dev/null
-then
-    echo "ERROR: Hadoop no está instalado o no está en el PATH"
+# Verificar que Hadoop está disponible
+if ! command -v hdfs &> /dev/null; then
+    echo "ERROR: Comando 'hdfs' no encontrado."
+    echo "Asegúrate de que Hadoop esté instalado y en el PATH."
     exit 1
 fi
 
-# Definir variables
-HDFS_INPUT_DIR="/data/input"
-LOCAL_DATASET="../dataset/datos.csv"
-DATASET_NAME="datos.csv"
-
-echo "Verificando conexión con HDFS..."
-hdfs dfs -ls / > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-    echo "ERROR: No se puede conectar con HDFS. Verifica que Hadoop esté corriendo."
-    exit 1
-fi
-
-# Crear directorio en HDFS si no existe
-echo "Creando directorio en HDFS: $HDFS_INPUT_DIR"
-hdfs dfs -mkdir -p $HDFS_INPUT_DIR
-
-# Verificar si el archivo local existe
-if [ ! -f "$LOCAL_DATASET" ]; then
-    echo "ERROR: El archivo $LOCAL_DATASET no existe"
-    exit 1
-fi
-
-# Subir archivo a HDFS (forzar sobrescritura si ya existe)
-echo "Subiendo archivo $DATASET_NAME a HDFS..."
-hdfs dfs -put -f $LOCAL_DATASET $HDFS_INPUT_DIR/$DATASET_NAME
-
-# Verificar que se subió correctamente
-if hdfs dfs -test -e $HDFS_INPUT_DIR/$DATASET_NAME; then
-    echo "✓ Archivo subido exitosamente"
-    echo "Ubicación en HDFS: hdfs://$HDFS_INPUT_DIR/$DATASET_NAME"
-    
-    # Mostrar información del archivo
-    echo ""
-    echo "=== Información del archivo en HDFS ==="
-    hdfs dfs -ls $HDFS_INPUT_DIR/$DATASET_NAME
-    
-    # Mostrar las primeras líneas
-    echo ""
-    echo "=== Primeras 5 líneas del archivo ==="
-    hdfs dfs -cat $HDFS_INPUT_DIR/$DATASET_NAME | head -5
-else
-    echo "ERROR: No se pudo subir el archivo a HDFS"
+# Verificar que HDFS está corriendo
+if ! hdfs dfsadmin -report &> /dev/null; then
+    echo "ERROR: HDFS no está corriendo o no está accesible."
+    echo "Inicia los servicios de Hadoop primero."
     exit 1
 fi
 
 echo ""
-echo "=== Carga completada exitosamente ==="
+echo "[1/3] Creando directorio en HDFS..."
+hdfs dfs -mkdir -p /data/input
+
+if [ $? -eq 0 ]; then
+    echo "  ✓ Directorio /data/input creado exitosamente"
+else
+    echo "  ✗ Error al crear directorio (puede que ya exista)"
+fi
+
+echo ""
+echo "[2/3] Subiendo datos.csv a HDFS..."
+hdfs dfs -put -f ../dataset/datos.csv /data/input/
+
+if [ $? -eq 0 ]; then
+    echo "  ✓ Archivo subido exitosamente"
+else
+    echo "  ✗ Error al subir archivo"
+    exit 1
+fi
+
+echo ""
+echo "[3/3] Verificando archivo en HDFS..."
+if hdfs dfs -test -e /data/input/datos.csv; then
+    echo "  ✓ Archivo existe en HDFS"
+    echo ""
+    echo "Información del archivo:"
+    hdfs dfs -ls /data/input/datos.csv
+    echo ""
+    echo "Primeras líneas del archivo:"
+    hdfs dfs -cat /data/input/datos.csv | head -5
+else
+    echo "  ✗ Archivo no encontrado en HDFS"
+    exit 1
+fi
+
+echo ""
+echo "=========================================="
+echo "  Datos subidos exitosamente a HDFS"
+echo "=========================================="
+echo ""
+echo "Ruta en HDFS: hdfs:///data/input/datos.csv"
+echo ""
+echo "Para ejecutar el job MapReduce:"
+echo "  python mapreduce/job.py -r hadoop hdfs:///data/input/datos.csv"
+echo ""
