@@ -74,4 +74,6 @@ Ver la wiki para detalles técnicos completos del proyecto.
 
 ## Link del Video Sustentacion
 
+https://youtu.be/aoiP-HxSRt0
+
 
