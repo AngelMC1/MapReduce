@@ -71,3 +71,7 @@ El proyecto genera `resultado.csv` con estadísticas por categoría:
 ## Documentación Completa
 
 Ver la wiki para detalles técnicos completos del proyecto.
+
+## Link del Video Sustentacion
+
+
